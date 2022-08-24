@@ -1,0 +1,28 @@
+--cpu Cortex-M3
+"project_utility_side\startup_stm32f103xb.o"
+"project_utility_side\main.o"
+"project_utility_side\stm32f1xx_it.o"
+"project_utility_side\stm32f1xx_hal_msp.o"
+"project_utility_side\stm32f1xx_hal_gpio_ex.o"
+"project_utility_side\stm32f1xx_hal_spi.o"
+"project_utility_side\stm32f1xx_hal.o"
+"project_utility_side\stm32f1xx_hal_rcc.o"
+"project_utility_side\stm32f1xx_hal_rcc_ex.o"
+"project_utility_side\stm32f1xx_hal_gpio.o"
+"project_utility_side\stm32f1xx_hal_dma.o"
+"project_utility_side\stm32f1xx_hal_cortex.o"
+"project_utility_side\stm32f1xx_hal_pwr.o"
+"project_utility_side\stm32f1xx_hal_flash.o"
+"project_utility_side\stm32f1xx_hal_flash_ex.o"
+"project_utility_side\stm32f1xx_hal_exti.o"
+"project_utility_side\stm32f1xx_hal_tim.o"
+"project_utility_side\stm32f1xx_hal_tim_ex.o"
+"project_utility_side\stm32f1xx_hal_uart.o"
+"project_utility_side\system_stm32f1xx.o"
+"project_utility_side\hc06.o"
+"project_utility_side\sx1278.o"
+"project_utility_side\system.o"
+--strict --scatter "Project_Utility_Side\Project_Utility_Side.sct"
+--summary_stderr --info summarysizes --map --load_addr_map_info --xref --callgraph --symbols
+--info sizes --info totals --info unused --info veneers
+--list "Project_Utility_Side.map" -o Project_Utility_Side\Project_Utility_Side.axf
