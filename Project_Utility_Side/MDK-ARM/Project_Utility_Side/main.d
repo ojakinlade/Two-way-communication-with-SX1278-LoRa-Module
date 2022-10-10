@@ -31,5 +31,7 @@ project_utility_side\main.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_u
 project_utility_side\main.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdbool.h
 project_utility_side\main.o: ..\MDK-ARM\hc06.h
 project_utility_side\main.o: ..\MDK-ARM\sx1278.h
+project_utility_side\main.o: ..\MDK-ARM\bme280.h
+project_utility_side\main.o: ..\MDK-ARM\lcd.h
 project_utility_side\main.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
 project_utility_side\main.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdio.h

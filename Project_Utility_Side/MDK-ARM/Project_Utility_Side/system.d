@@ -29,3 +29,5 @@ project_utility_side\system.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal
 project_utility_side\system.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_spi.h
 project_utility_side\system.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_uart.h
 project_utility_side\system.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdbool.h
+project_utility_side\system.o: gpio.h
+project_utility_side\system.o: i2c.h

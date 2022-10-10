@@ -22,6 +22,10 @@
 "project_utility_side\hc06.o"
 "project_utility_side\sx1278.o"
 "project_utility_side\system.o"
+"project_utility_side\bme280.o"
+"project_utility_side\gpio.o"
+"project_utility_side\i2c.o"
+"project_utility_side\lcd.o"
 --strict --scatter "Project_Utility_Side\Project_Utility_Side.sct"
 --summary_stderr --info summarysizes --map --load_addr_map_info --xref --callgraph --symbols
 --info sizes --info totals --info unused --info veneers
