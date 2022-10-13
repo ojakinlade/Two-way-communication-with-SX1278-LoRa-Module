@@ -1,5 +1,6 @@
 project_utility_side\lcd.o: lcd.c
 project_utility_side\lcd.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdbool.h
+project_utility_side\lcd.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdio.h
 project_utility_side\lcd.o: ../Core/Inc/main.h
 project_utility_side\lcd.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal.h
 project_utility_side\lcd.o: ../Core/Inc/stm32f1xx_hal_conf.h

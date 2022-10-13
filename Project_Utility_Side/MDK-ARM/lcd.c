@@ -1,4 +1,5 @@
 #include <stdbool.h>
+#include <stdio.h>
 #include "main.h"
 #include "gpio.h"
 #include "i2c.h"
@@ -102,7 +103,7 @@ void LCD_Init(void)
 	LCD_Write_Cmd(CMD_CLEAR_DISPLAY);
 	LCD_Write_Cmd(CMD_DISPLAY_ON_CURSOR_OFF);
 	LCD_Write_Cmd(CMD_ENTRY_MODE_INCREMENT_CURSOR);
-	LCD_Write_Cmd(CMD_DISPLAY_ON_CURSOR_BLINK);
+	//LCD_Write_Cmd(CMD_DISPLAY_ON_CURSOR_BLINK);
 
 }
 
@@ -113,6 +114,13 @@ void LCD_Write_String(char* pData)
 		LCD_Write_Data(*pData);
 		pData++;
 	}
+}
+
+void LCD_Write_Int(uint8_t data)
+{
+	char temp[3];
+	sprintf(temp, "%d", data);
+	LCD_Write_String(temp);
 }
 
 void LCD_Clear(void)
