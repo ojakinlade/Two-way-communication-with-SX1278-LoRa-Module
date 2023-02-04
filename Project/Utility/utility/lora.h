@@ -32,7 +32,7 @@ class LORA
     uint8_t bufferSize; /*Size of data buffer containing power parameters*/
     uint8_t rxDataCounter;
     uint8_t txBuffer[MAX_BUFFER_SIZE]; 
-    char rxBuffer[MAX_BUFFER_SIZE];
+    uint8_t rxBuffer[MAX_BUFFER_SIZE];
     
   public:
     LORA(uint8_t csPin, uint8_t rstPin, uint8_t irqPin, uint32_t freq, uint8_t deviceAddr);
@@ -40,6 +40,7 @@ class LORA
     /*Transmitter*/
     void EncodeData(uint16_t data,uint8_t dataID);
     void TransmitData(char* pData,uint8_t deviceAddr);
+    void TransmitData(uint8_t deviceAddr);
     void TransmitAck(uint8_t deviceAddr);
     void TransmitQuery(uint8_t deviceAddr);
     /*Non-blocking Receiver*/

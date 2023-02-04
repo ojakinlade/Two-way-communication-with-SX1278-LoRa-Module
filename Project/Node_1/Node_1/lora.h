@@ -42,6 +42,7 @@ class LORA
     /*Transmitter*/
     void EncodeData(uint16_t data,uint8_t dataID);
     void TransmitData(char* pData,uint8_t deviceAddr);
+    void TransmitData(uint8_t deviceAddr);
     void TransmitAck(uint8_t deviceAddr);
     void TransmitQuery(uint8_t deviceAddr);
     /*Non-blocking Receiver*/

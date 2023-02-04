@@ -16,6 +16,7 @@ LORA::LORA(uint8_t csPin, uint8_t rstPin, uint8_t irqPin, uint32_t freq, uint8_t
   LoRa.setPins(chipSel, resetPin, IRQPin);// set CS, reset, IRQ pin
   //LoRa.begin(freq);
   bufferSize = MAX_BUFFER_SIZE;
+  rxDataCounter = 0;
   for(uint8_t i = 0; i < bufferSize; i++)
   {
     txBuffer[i] = 0;
@@ -67,18 +68,28 @@ void LORA::TransmitData(char* pData, uint8_t deviceAddr)
     LoRa.print(pData);
     LoRa.endPacket();
     delay(100);
-//  Serial.print("Tx buffer: ");
-//  for(uint8_t i = 0; i < bufferSize; i++)
-//  {
-//    LoRa.beginPacket();
-//    LoRa.write(destination);
-//    LoRa.write(localAddress);
-//    LoRa.write(msgCount);
-//    LoRa.write(pData.length());
-//    LoRa.print(pData);
-//    LoRa.endPacket(); 
-//  }
-//  Serial.print("\n");
+}
+
+/**
+ * @brief Sends data to a LoRa receiver (i.e. master device).  
+ * @param pData: Pointer to data to be sent to LoRa receiver
+ * @param deviceAddr: Address of LoRa receiver
+*/
+void LORA::TransmitData(uint8_t deviceAddr)
+{
+  Serial.print("Tx buffer: ");
+  for(uint8_t i = 0; i < bufferSize; i++)
+  {
+    LoRa.beginPacket();
+    LoRa.write(deviceAddr);
+    LoRa.write(addr);
+    LoRa.write(txBuffer[i]);
+    Serial.print(txBuffer[i]);
+    Serial.print(' ');
+    LoRa.endPacket();
+    delay(100); 
+  }
+  Serial.print("\n");
 }
 
 /**
@@ -136,26 +147,26 @@ bool LORA::ReceivedData(void)
 {
   bool rxDone = false;
   packetSize = LoRa.parsePacket();   
-  if(packetSize == 0)
+  if(packetSize != 0)
   {
-    return rxDone;
+    int recipient = LoRa.read();
+    byte sender = LoRa.read();
+    
+    if(LoRa.available())
+    {
+      if(rxDataCounter < bufferSize)
+      {
+        rxBuffer[rxDataCounter] = LoRa.read();
+        rxDataCounter++;
+      }
+    }
+    if(rxDataCounter == bufferSize)
+    {
+      rxDataCounter = 0;
+      rxDone = true;
+    }
   }
-  int recipient = LoRa.read();
-  byte sender = LoRa.read();
-  Serial.print("Received Packet: ");
-  uint8_t i = 0;
-  while(LoRa.available())
-  {
-    rxBuffer[i++] = (char)LoRa.read();
-  }
-  for(uint8_t j = 0; j < bufferSize; j++)
-  {
-    Serial.print(rxBuffer[j]);
-  }
-  Serial.print("\n");
-  rxDone = true;
   return rxDone;
-
 }
 
 /**
