@@ -37,6 +37,5 @@ class MNI
     void EncodeData(uint16_t dataToEncode,TxDataId id);
     void TransmitData(void);
     bool ReceivedData(void);
-    void ClearRxBuffer(void);
     uint16_t DecodeData(RxDataId id);
 };

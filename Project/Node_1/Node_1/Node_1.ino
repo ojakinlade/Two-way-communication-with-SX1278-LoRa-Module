@@ -33,14 +33,7 @@ void loop() {
        Node_1.DecodeData(MNI::RxDataId::DATA_QUERY) == MNI::QUERY)
     {
       Serial.println("Query Received");
-      delay(200);
-      //pzemSerial.listen();
-//      uint16_t volt = pzem.voltage() * 10;
-//      uint16_t freq = pzem.frequency() * 10;
-//      uint16_t pf = pzem.pf() * 100;
-//      uint16_t curr = pzem.current() * 100;
 //      uint16_t pwr = pzem.power() * 10;
-//      uint16_t kwh = pzem.energy() * 100;
       uint16_t pwr = 50;   
       //Debug  
       Serial.print("power = ");

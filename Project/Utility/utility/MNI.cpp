@@ -14,7 +14,7 @@ MNI::MNI(uint8_t csPin, uint8_t rstPin, uint8_t irqPin, uint32_t freq, uint8_t d
   addr = deviceAddr;
   packetSize = 0;
   LoRa.setPins(chipSel, resetPin, IRQPin);// set CS, reset, IRQ pin
-  //LoRa.begin(freq);
+  LoRa.begin(freq);
   rxDataCounter = 0;
   for(uint8_t i = 0; i < BufferSize::TX; i++)
   {
@@ -47,17 +47,16 @@ void MNI::EncodeData(uint16_t dataToEncode,TxDataId id)
 */
 void MNI::TransmitData(void)
 {
-  //Serial.print("Tx buffer: ");
+  Serial.print("Tx buffer: ");
+  LoRa.beginPacket();
   for(uint8_t i = 0; i < BufferSize::TX; i++)
   {
-    LoRa.beginPacket();
     LoRa.write(txBuffer[i]);
-    LoRa.endPacket(); 
     Serial.print(txBuffer[i]);
     Serial.print(' ');
-    delay(200);
   }
   Serial.print("\n");
+  LoRa.endPacket();
 }
 
 /**
@@ -68,25 +67,25 @@ void MNI::TransmitData(void)
 bool MNI::ReceivedData(void)
 {
   bool rxDone = false;
-  packetSize = LoRa.parsePacket(); 
-  if(packetSize != 0)
+  packetSize = LoRa.parsePacket();   
+  if(packetSize == 0)
   {
-    if(LoRa.available())
-    {
-      if(rxDataCounter < BufferSize::RX)
-      {
-        rxBuffer[rxDataCounter] = LoRa.read();
-        Serial.print(rxBuffer[rxDataCounter]);
-        Serial.print(" ");
-        rxDataCounter++;
-      }
-    }
-    if(rxDataCounter == BufferSize::RX)
-    {
-      Serial.print("\n");
-      rxDataCounter = 0;
-      rxDone = true;
-    }
+    return rxDone;
+  }
+  while(LoRa.available())
+  {
+    rxBuffer[rxDataCounter] = LoRa.read();
+    rxDataCounter++;
+  }
+  if(rxDataCounter != BufferSize::RX)
+  {
+    rxDataCounter = 0;
+    return rxDone;
+  }
+  else
+  {
+    rxDataCounter = 0;
+    rxDone = true;
   }
   return rxDone;
 }
@@ -101,12 +100,4 @@ uint16_t MNI::DecodeData(RxDataId id)
   uint8_t dataID = (uint8_t)id;
   //merge 2 bytes stored in 'rxBuffer' into 16-bit data
   return (rxBuffer[dataID] << 8) | rxBuffer[dataID + 1]; 
-}
-
-void MNI::ClearRxBuffer(void)
-{
-  for(uint8_t j = 0; j < BufferSize::RX; j++)
-  {
-    rxBuffer[j] = 0;
-  }
 }

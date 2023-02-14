@@ -36,7 +36,7 @@ void setup() {
   }
   //Tasks
   xTaskCreatePinnedToCore(NodeTask,"",30000,NULL,1,&nodeTaskHandle,1);
-//  xTaskCreatePinnedToCore(ApplicationTask,"",30000,NULL,1,&appTaskHandle,1);  
+  xTaskCreatePinnedToCore(ApplicationTask,"",25000,NULL,1,&appTaskHandle,1);  
 }
 
 void loop() {
@@ -54,15 +54,34 @@ void ApplicationTask(void* pvParameters)
   lcd.print(" ENERGY MONITOR");
   vTaskDelay(pdMS_TO_TICKS(1500));
   lcd.clear();
-  lcd.print("STATUS: ");
-  lcd.setCursor(0,1);
-  lcd.print("LOADING...");
+  lcd.print("INITIALIZING...");
   vTaskDelay(pdMS_TO_TICKS(1500));
   lcd.clear();
+  vTaskResume(nodeTaskHandle);
 
   while(1)
   {
-    
+    //Receive sensor Data from Node-Application Queue.
+    if(xQueueReceive(nodeToAppQueue,&pwr,0) == pdPASS)
+    {
+      Serial.println("--Application task received data from Node task\n");
+    }
+    uint16_t totalPwr = pwr.node1Pwr + pwr.node2Pwr;
+    lcd.setCursor(0,0);
+    lcd.print("Node 1: ");
+    lcd.print(pwr.node1Pwr);
+    lcd.print(" W");
+    lcd.setCursor(0,1);
+    lcd.print("Node 2: ");
+    lcd.print(pwr.node2Pwr);
+    lcd.print(" W");
+    lcd.setCursor(0,2);
+    lcd.print("Total PWR: ");
+    lcd.print(totalPwr);
+    lcd.print(" W");
+    lcd.setCursor(0,3);
+    lcd.print("Source used: ");
+    lcd.print("xxxx");
   }
 }
 
@@ -73,30 +92,24 @@ void ApplicationTask(void* pvParameters)
 */
 void NodeTask(void* pvParameters)
 {
+  vTaskSuspend(NULL);
   MNI Utility(Pin::csPin,Pin::resetPin,Pin::irqPin,FREQ_433MHZ,MNI::localAddr);
   static pwr_t pwr; 
-  uint32_t node1Time = millis();
-  uint32_t node2Time = millis();
+  uint8_t node = MNI::node1Addr;
+  uint32_t nodeTime = millis();
+  bool utilityDoneReceiving = false;
 
   while(1)
   {
-    if(millis() - node1Time >= 3000)
+    if(millis() - nodeTime >= 1000)
     {
-      Utility.EncodeData(MNI::node1Addr,MNI::TxDataId::NODE_ADDR);
+      Utility.EncodeData(node,MNI::TxDataId::NODE_ADDR);
       Utility.EncodeData(MNI::QUERY,MNI::TxDataId::DATA_QUERY);
       Utility.TransmitData();
-      node1Time = millis();
-      Serial.println("--Query sent to Node 1");
-    }
-    if(millis() - node2Time >= 3000)
-    {
-      node1Time = millis();
-      Utility.EncodeData(MNI::node2Addr,MNI::TxDataId::NODE_ADDR);
-      Utility.EncodeData(MNI::QUERY,MNI::TxDataId::DATA_QUERY);
-      Utility.TransmitData();
-      node1Time = millis();
-      node2Time = millis();
-      Serial.println("--Query sent to Node 2");
+      Serial.print("--Query sent to ");
+      Serial.println(node);
+      node = (node == MNI::node1Addr) ? MNI::node2Addr : MNI::node1Addr;
+      nodeTime = millis();
     }
     
     if(Utility.ReceivedData())
@@ -115,9 +128,22 @@ void NodeTask(void* pvParameters)
           Serial.println("Data Received from node 2");
           vTaskDelay(pdMS_TO_TICKS(200));
           pwr.node2Pwr = Utility.DecodeData(MNI::RxDataId::POWER);
+          utilityDoneReceiving = true;
           Serial.println(pwr.node2Pwr);
         }
       }   
+    }
+    if(utilityDoneReceiving)
+    {
+      utilityDoneReceiving = false;
+      if(xQueueSend(nodeToAppQueue,&pwr,0) == pdPASS)
+      {
+        Serial.println("--Data Sucessfully sent to Application Task\n");
+      }
+      else
+      {
+        Serial.println("--Failed to send to Application Task\n");
+      }
     }
   }
 }
