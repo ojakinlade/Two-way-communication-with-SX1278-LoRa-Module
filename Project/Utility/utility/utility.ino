@@ -10,7 +10,7 @@ namespace Pin
 
 typedef  struct
 {
-  uint16_t node1Pwr;
+  float node1Pwr;
   uint16_t node2Pwr;
 }pwr_t;
 
@@ -97,18 +97,17 @@ void NodeTask(void* pvParameters)
   static pwr_t pwr; 
   uint8_t node = MNI::node1Addr;
   uint32_t nodeTime = millis();
-  bool utilityDoneReceiving = false;
 
   while(1)
   {
-    if(millis() - nodeTime >= 1000)
+    if(millis() - nodeTime >= 1200)
     {
       Utility.EncodeData(node,MNI::TxDataId::NODE_ADDR);
       Utility.EncodeData(MNI::QUERY,MNI::TxDataId::DATA_QUERY);
       Utility.TransmitData();
       Serial.print("--Query sent to ");
       Serial.println(node);
-      node = (node == MNI::node1Addr) ? MNI::node2Addr : MNI::node1Addr;
+//      node = (node == MNI::node1Addr) ? MNI::node2Addr : MNI::node1Addr;
       nodeTime = millis();
     }
     
@@ -119,31 +118,20 @@ void NodeTask(void* pvParameters)
         if(Utility.DecodeData(MNI::RxDataId::RX_NODE_ADDR) == MNI::node1Addr)
         {
           Serial.println("Data Received from node 1");
-          vTaskDelay(pdMS_TO_TICKS(200));
-          pwr.node1Pwr = Utility.DecodeData(MNI::RxDataId::POWER);
+          //vTaskDelay(pdMS_TO_TICKS(200));
+          pwr.node1Pwr = Utility.DecodeData(MNI::RxDataId::POWER) / 100.0;
+          xQueueSend(nodeToAppQueue,&pwr,0);
           Serial.println(pwr.node1Pwr);
         }
-        else if(Utility.DecodeData(MNI::RxDataId::RX_NODE_ADDR) == MNI::node2Addr)
-        {
-          Serial.println("Data Received from node 2");
-          vTaskDelay(pdMS_TO_TICKS(200));
-          pwr.node2Pwr = Utility.DecodeData(MNI::RxDataId::POWER);
-          utilityDoneReceiving = true;
-          Serial.println(pwr.node2Pwr);
-        }
+//        else if(Utility.DecodeData(MNI::RxDataId::RX_NODE_ADDR) == MNI::node2Addr)
+//        {
+//          Serial.println("Data Received from node 2");
+//          //vTaskDelay(pdMS_TO_TICKS(200));
+//          pwr.node2Pwr = Utility.DecodeData(MNI::RxDataId::POWER);
+//          xQueueSend(nodeToAppQueue,&pwr,0);
+//          Serial.println(pwr.node2Pwr);
+//        }
       }   
-    }
-    if(utilityDoneReceiving)
-    {
-      utilityDoneReceiving = false;
-      if(xQueueSend(nodeToAppQueue,&pwr,0) == pdPASS)
-      {
-        Serial.println("--Data Sucessfully sent to Application Task\n");
-      }
-      else
-      {
-        Serial.println("--Failed to send to Application Task\n");
-      }
     }
   }
 }
